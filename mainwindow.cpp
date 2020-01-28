@@ -68,7 +68,12 @@ void MainWindow::newData(const char *buff, int len) {
         return;
     }
 
-    response = bytes;
+    response += bytes;
+
+    if (!bPrompt) {
+        qDebug() << "PARTIAL PACKET";
+        return;
+    }
 
     if (_cb != nullptr) {
         QStringList strlst = response.split('\n');
@@ -87,6 +92,7 @@ void MainWindow::newData(const char *buff, int len) {
     }
 
     state = STATE_IDLE;
+    response.clear();
 }
 
 void MainWindow::stateChanged(QAbstractSocket::SocketState state)
@@ -116,7 +122,9 @@ void MainWindow::on_sendButton_clicked()
 
 void MainWindow::on_actionHelp_triggered()
 {
-    sendCommand("help");
+    sendCommand("help", [](QStringList & x) {
+        qDebug() << x;
+    });
 }
 
 void MainWindow::on_actionVersion_triggered()
